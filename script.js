@@ -1,4 +1,4 @@
- apconstiKey = "c2e38691b5b7485493065b959df45a3a"; // Replace with your NewsAPI key
+const apiKey = "c2e38691b5b7485493065b959df45a3a"; // Replace with your NewsAPI key
 const container = document.getElementById("news-container");
 const form = document.getElementById("search-form");
 const input = document.getElementById("search-input");
