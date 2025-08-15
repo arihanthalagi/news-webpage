@@ -1,44 +1,35 @@
-const apiKey = "c2e38691b5b7485493065b959df45a3a"; // Replace with your NewsAPI key
-const container = document.getElementById("news-container");
-const form = document.getElementById("search-form");
-const input = document.getElementById("search-input");
 
-// Fetch news by keyword
-async function fetchNews(query) {
-  const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=publishedAt&apiKey=${apiKey}`;
+document.getElementById("searchBtn").addEventListener("click", getNews);
 
-  try {
-    container.innerHTML = "<p>Loading...</p>";
-    const res = await fetch(url);
-    const data = await res.json();
+async function getNews() {
+    const query = document.getElementById("searchInput").value.trim();
+    const apiKey = "15fffa71f1bfe42c89347243ca753017"; // Replace with your GNews API key
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&apikey=${apiKey}`;
 
-    if (data.status !== "ok" || data.articles.length === 0) {
-      container.innerHTML = "<p>No news found.</p>";
-      return;
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "<p>Loading...</p>";
+
+    try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        resultsDiv.innerHTML = "";
+
+        if (data.articles && data.articles.length > 0) {
+            data.articles.forEach(article => {
+                const newsHTML = `
+                    <div class="news-item">
+                        <h3><a href="${article.url}" target="_blank">${article.title}</a></h3>
+                        <p>${article.description || ""}</p>
+                    </div>
+                `;
+                resultsDiv.innerHTML += newsHTML;
+            });
+        } else {
+            resultsDiv.innerHTML = "<p>No news found.</p>";
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = "<p>Error loading news.</p>";
+        console.error(error);
     }
-
-    container.innerHTML = ""; // Clear old news
-    data.articles.forEach(article => {
-      const newsEl = document.createElement("article");
-      newsEl.innerHTML = `
-        <img src="${article.urlToImage || 'https://via.placeholder.com/300x180'}" alt="News Image">
-        <h2>${article.title}</h2>
-        <p>${article.description || ""}</p>
-        <a href="${article.url}" target="_blank">Read more</a>
-      `;
-      container.appendChild(newsEl);
-    });
-  } catch (err) {
-    console.error("Error fetching news:", err);
-    container.innerHTML = "<p>Failed to load news.</p>";
-  }
 }
-
-// Event listener for search
-form.addEventListener("submit", e => {
-  e.preventDefault();
-  const query = input.value.trim();
-  if (query) {
-    fetchNews(query);
-  }
-});
